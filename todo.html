@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>Todo List App</title>
+    <link rel="stylesheet" href="/css/todo.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const h1 = <h1>Todo List App</h1>
+        let uniqId = 0
+        function TodoApp() {
+            const [inputValue, setInputValue] = React.useState('')
+            const [todos, setTodos] = React.useState([]);
+
+            const handleInputChange = (e) => {
+                setInputValue(e.target.value) // Lấy giá trị từ input
+            }
+
+            const handleSubmit = (e) => {
+                e.preventDefault() // Ngăn trang reload page khi submit form
+                if (inputValue.trim()) {
+                    setTodos([...todos, { 
+                        id: ++uniqId, 
+                        text: inputValue, 
+                        completed: false
+                    }])
+                    setInputValue("") // Reset input sau khi thêm
+                }
+            }
+
+            const toggleComplete = (id) => {
+                setTodos(todos.map(todo =>
+                    todo.id === id ? { ...todo, completed: !todo.completed } : todo
+                ))
+            }
+
+            const deleteTask = (id) => {
+                setTodos(todos.filter(todo => todo.id !== id))
+            }
+
+            const completed = todos.filter(todo => todo.completed).length
+
+            return (
+                <div>
+                    <form onSubmit={handleSubmit}>
+                        <input
+                            value={inputValue}
+                            onChange={handleInputChange}
+                            placeholder="Nhập task mới..."
+                        />
+                        <button type="submit">Thêm</button>
+                    </form>
+                    {
+                        todos.length === 0 ? (
+                            <div className="empty">Chưa có task nào. Hãy thêm task đầu tiên!</div>
+                        ) : (
+                            <ul>
+                                {todos.map((todo) =>
+                                    <li key={todo.id}>
+                                        <input 
+                                            type="checkbox"
+                                            checked={todo.completed}
+                                            onChange={() => toggleComplete(todo.id)}
+                                        />
+                                        <span className={todo.completed ? "completed" : ""}>
+                                            {todo.text}
+                                        </span>
+                                        <button 
+                                        onClick={() => deleteTask(todo.id)}
+                                        className="delete-btn"
+                                        >
+                                            Xoá
+                                        </button>
+                                    </li>
+                                )}
+                            </ul>
+                        )
+                    }
+                    <div className="stats">
+                        Tổng: {todos.length} task(s), Hoàn thành: {completed} task(s), Còn lại: {todos.length-completed} task(s)
+                    </div>
+                </div>
+            )
+        }
+
+        const app = <>
+                {h1}
+                <TodoApp />
+            </>
+
+        const root = ReactDOM.createRoot(document.querySelector("#root"))
+        root.render(app)
+
+    </script>
+</body>
+</html>
